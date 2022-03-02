@@ -1,6 +1,6 @@
+import requests
 import telebot
 from telebot import types
-import requests
 
 bot = telebot.TeleBot("5179322043:AAEsVNYOTaI8-2uEcxoQdcnC0xLc33MeHb0")
 city =''
@@ -47,6 +47,16 @@ def weather(message):
                       "Минимальная температура: "+str(data['main']['temp_min'])+'\n'+"Максимальная температура: "+str(data['main']['temp_max'])+'\n'+
                       "Скорость ветра: "+str(data['wind']['speed'])+'\n'+"Видимость: "+str(data['visibility']) )
     bot.send_message(message.chat.id ,'Хочешь узнать погоду в другом городпе, жми weather \n' +'Вернуться к возможностям, жми help', reply_markup=keyboard)
+@bot.message_handler(commands=['weather-weak'])
+def weathe_rweak(message):
+    global city
+    city = message.text
+    res = requests.get("http://api.openweathermap.org/data/2.5/forecast",
+                       params={'q': city, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
+    data = res.json()
+    bot.send_message (message.chat.id,"Прогноз огоды на неделю")
+    for i in data['list']:
+        bot.send_message(message.chat.id,"Дата<"+str(i['dt_txt'])+">\r\nТемпература<"+str('{0:+3.0f}',format(i['main']['temp'])))
 
 @bot.message_handler(commands=['check'])
 def converter_mode_0(message):
@@ -63,23 +73,6 @@ def answer(message):
     elif message.text.lower() == "обзор":
         bot.send_message(message.chat.id, 'Тогда тебе сюда – http://bricker.ru')
     elif O == 0:
-        keyboard = types.ReplyKeyboardMarkup()
-        keyboard.row("/help")
-        bot.send_message(message.chat.id, round(float(float(message.text) * 75.24), 2))
-        bot.send_message(message.chat.id, 'Чтобы продолжить, пиши следующуюю сумму: \n'
-                                          'Вернуться к возможностям, жми help', reply_markup=keyboard)
-
-
-bot.polling()
-@bot.message_handler(content_types=['text'])
-def answer(message):
-    if message.text.lower() == "хочу":
-        bot.send_message(message.chat.id, 'Тогда тебе сюда – https://mir-kubikov.ru/lego/new/')
-    elif message.text.lower() == "история":
-        bot.send_message(message.chat.id, 'Тогда тебе сюда – https://ru.wikipedia.org/wiki/LEGO')
-    elif message.text.lower() == "обзор":
-        bot.send_message(message.chat.id, 'Тогда тебе сюда – http://bricker.ru')
-    elif i == 0:
         keyboard = types.ReplyKeyboardMarkup()
         keyboard.row("/help")
         bot.send_message(message.chat.id, round(float(float(message.text) * 75.24), 2))
